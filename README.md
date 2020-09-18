@@ -15,4 +15,6 @@ service (e.g. Twitch).
 
 
 ## To DO
+* Error reporting
+* Do not allow recording button to be pressed multiple times unless the user has stopped everything
 * Continue writing this README
