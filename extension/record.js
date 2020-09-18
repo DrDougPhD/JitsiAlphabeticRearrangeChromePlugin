@@ -42,17 +42,33 @@ const startRecording = (streamableElement) => {
     console.log(`Recording <${streamableElement.tagName}> with id="${streamableElement.id}"`);
 
     mediaRecorders[streamableElement.id] = mediaRecorder;
-    const recordedBlobs = [];
     allRecordedBlobs[streamableElement.id] = [];
 
     console.log('Created MediaRecorder', mediaRecorder, 'with options', chosenMimeType);
 
     mediaRecorder.onstop = (event) => {
         console.log('Recorder stopped: ', event);
-        console.log('Recorded Blobs: ', recordedBlobs);
+        console.log('Recorded Blobs: ', allRecordedBlobs[streamableElement.id]);
+
+        const blob = new Blob(allRecordedBlobs[streamableElement.id], {type: 'video/webm'});
+        const url = window.URL.createObjectURL(blob);
+
+        console.log('mediaRecorder.stop() on', url);
+
+        const downloader = document.createElement('a');
+        downloader.style.display = 'none';
+        downloader.href = url;
+        downloader.download = `${streamableElement.id}.webm`;
+        document.body.appendChild(downloader);
+        downloader.click();
+        setTimeout(() => {
+            document.body.removeChild(downloader);
+            window.URL.revokeObjectURL(url);
+            // delete allRecordedBlobs[streamableElement.id];
+        }, 2500);
     };
     mediaRecorder.ondataavailable = (event) => handleDataAvailable(event, streamableElement.id);
-    mediaRecorder.start();
+    mediaRecorder.start(1000);
     console.log('MediaRecorder started', mediaRecorder);
 
     setTimeout(() => {
@@ -62,25 +78,24 @@ const startRecording = (streamableElement) => {
 
 
 const stopRecording = (streamableElement) => {
-    const mediaRecorder = mediaRecorders[streamableElement.id];
-    mediaRecorder.stop();
+    mediaRecorders[streamableElement.id].stop();
 
-    const blob = new Blob(allRecordedBlobs[streamableElement.id], {type: 'video/webm'});
-    const url = window.URL.createObjectURL(blob);
-
-    console.log('stopRecording()', url);
-
-    const downloader = document.createElement('a');
-    downloader.style.display = 'none';
-    downloader.href = url;
-    downloader.download = 'test.webm';
-    document.body.appendChild(downloader);
-    downloader.click();
-    setTimeout(() => {
-        document.body.removeChild(downloader);
-        window.URL.revokeObjectURL(url);
-        // delete allRecordedBlobs[streamableElement.id];
-    }, 2500);
+    // const blob = new Blob(allRecordedBlobs[streamableElement.id], {type: 'video/webm'});
+    // const url = window.URL.createObjectURL(blob);
+    //
+    // console.log('stopRecording()', url);
+    //
+    // const downloader = document.createElement('a');
+    // downloader.style.display = 'none';
+    // downloader.href = url;
+    // downloader.download = 'test.webm';
+    // document.body.appendChild(downloader);
+    // downloader.click();
+    // setTimeout(() => {
+    //     document.body.removeChild(downloader);
+    //     window.URL.revokeObjectURL(url);
+    //     // delete allRecordedBlobs[streamableElement.id];
+    // }, 2500);
 };
 
 // Grab all <video> elements and create a MediaRecorder for each
