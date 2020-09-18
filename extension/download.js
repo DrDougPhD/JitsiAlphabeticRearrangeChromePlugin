@@ -1,1 +1,2 @@
-console.log('Downloading recorded content!')
+console.log('Recording complete!');
+console.log(window.JitsiRecorder);

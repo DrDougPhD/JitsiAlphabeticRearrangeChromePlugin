@@ -29,5 +29,5 @@ recorderButton.onclick = () => {
         recorderButton.textContent = recorderButtonInitialLabel;
     }
 
-
+    // TODO: can I grab returned values so as to trigger a stop recording button?
 };
