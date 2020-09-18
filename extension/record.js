@@ -1,18 +1,33 @@
 console.log('Recording all videos and audio stream now!');
-window.JitsiRecorder = {};
 
-const supportedMimeTypes = [
-    {mimeType: 'video/webm;codecs=vp9,opus'},
-    {mimeType: 'video/webm;codecs=vp8,opus'},
-    {mimeType: 'video/webm'},
-    {mimeType: ''}
-].filter(
-    ({mimeType}) => MediaRecorder.isTypeSupported(mimeType)
-);
-const chosenMimeType = supportedMimeTypes[0];
+function JitsiRecorder() {
+}
 
-let allRecordedBlobs = {};
-let sizes = {};
+window.JitsiRecorder = {
+    mimeTypes: {
+        audio: [
+            'audio/webm;codecs=opus',
+            'audio/webm;codecs=vorbis',
+            'audio/ogg;codecs=opus',
+            'audio/ogg;codecs=vorbis',
+            'audio/webm;codecs=flac',
+            'audio/wav',
+        ].filter(MediaRecorder.isTypeSupported),
+        video: [
+            'video/webm;codecs=vp9',
+            'video/webm;codecs=vp8',
+            'video/webm;codecs=daala',
+            'video/webm;codecs=h264',
+            'video/webm;codecs="av01.2.19H.12.0.000.09.16.09.1"',
+            'video/webm',
+            'video/mpeg',
+        ].filter(MediaRecorder.isTypeSupported),
+    },
+    recorders: {}
+};
+
+console.log('Supported video mime types:', window.JitsiRecorder.mimeTypes.video);
+console.log('Supported audio mime types:', window.JitsiRecorder.mimeTypes.audio);
 
 
 const downloadData = (event, id, mediaRecorder) => {
@@ -42,51 +57,29 @@ const downloadData = (event, id, mediaRecorder) => {
 
 const startRecording = (streamableElement) => {
     let mediaRecorder;
+    const mimeType = window.JitsiRecorder.mimeTypes[streamableElement.tagName.toLowerCase()][0];
+    console.log(`Mime type: ${mimeType}`);
     try {
+        const stream = streamableElement.captureStream(30);
         mediaRecorder = new MediaRecorder(
-            streamableElement.captureStream(30),
-            chosenMimeType
+            stream,
+            {mimeType}
         );
+        // TODO:  videoStream.onended = () => {...}
     } catch (e) {
         console.error('Exception while creating MediaRecorder:', e);
         return;
     }
 
     console.log(`Recording <${streamableElement.tagName}> with id="${streamableElement.id}"`);
-
-    allRecordedBlobs[streamableElement.id] = [];
-    sizes[streamableElement.id] = 0;
-
-    console.log('Created MediaRecorder', mediaRecorder, 'with options', chosenMimeType);
-
-    // mediaRecorder.onstop = (event) => {
-    //     console.log('Recorder stopped: ', event);
-    //     console.log('Recorded Blobs: ', allRecordedBlobs[streamableElement.id]);
-    //
-    //     const blob = new Blob(allRecordedBlobs[streamableElement.id], {type: 'video/webm'});
-    //     const url = window.URL.createObjectURL(blob);
-    //
-    //     console.log('mediaRecorder.stop() on', url);
-    //
-    //     const downloader = document.createElement('a');
-    //     downloader.style.display = 'none';
-    //     downloader.href = url;
-    //     downloader.download = `${streamableElement.id}.webm`;
-    //     document.body.appendChild(downloader);
-    //     downloader.click();
-    //     setTimeout(() => {
-    //         document.body.removeChild(downloader);
-    //         window.URL.revokeObjectURL(url);
-    //         delete allRecordedBlobs[streamableElement.id];
-    //     }, 2500);
-    // };
+    console.log('Created MediaRecorder', mediaRecorder, 'with options', mimeType);
 
     mediaRecorder.ondataavailable = (event) => downloadData(event, streamableElement.id, mediaRecorder);
     mediaRecorder.onstop = (event) => downloadData(event, streamableElement.id, mediaRecorder);
 
     const oneMinute = 60000;
     const fiveMinutes = oneMinute * 5;
-    mediaRecorder.start(5000);
+    mediaRecorder.start(oneMinute);
     console.log('MediaRecorder started', mediaRecorder);
 
     setTimeout(() => {
@@ -98,7 +91,9 @@ const startRecording = (streamableElement) => {
 // Grab all <video> elements and create a MediaRecorder for each
 
 const sampleVideo = document.querySelectorAll('#filmstripRemoteVideosContainer video')[0];
+const sampleAudio = document.querySelectorAll('#filmstripRemoteVideosContainer audio')[0];
 startRecording(sampleVideo);
+startRecording(sampleAudio);
 
 // [...document.querySelectorAll('#filmstripRemoteVideosContainer video')]
 //     .forEach(video => {
