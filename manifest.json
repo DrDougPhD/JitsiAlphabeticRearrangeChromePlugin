@@ -1,26 +1,28 @@
 {
   "name": "Jitsi Alphabetic Layout Chrome Plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Impose an alphabetically-ordered layout of the participants in a Jitsi Meet video chat. Simply press the button once all of your users are in and the layout will be reordered in alphabetical order, with your screen being at the most bottom-right.",
   "permissions": ["activeTab", "declarativeContent"],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "extension/background.js"
+    ],
     "persistent": false
   },
   "page_action": {
-    "default_popup": "popup.html",
+    "default_popup": "extension/popup.html",
     "default_icon": {
-      "16": "images/jitsi16.png",
-      "32": "images/jitsi32.png",
-      "48": "images/jitsi48.png",
-      "128": "images/jitsi128.png"
+      "16": "extension/images/jitsi16.png",
+      "32": "extension/images/jitsi32.png",
+      "48": "extension/images/jitsi48.png",
+      "128": "extension/images/jitsi128.png"
     }
   },
   "icons": {
-    "16": "images/jitsi16.png",
-    "32": "images/jitsi32.png",
-    "48": "images/jitsi48.png",
-    "128": "images/jitsi128.png"
+    "16": "extension/images/jitsi16.png",
+    "32": "extension/images/jitsi32.png",
+    "48": "extension/images/jitsi48.png",
+    "128": "extension/images/jitsi128.png"
   },
   "manifest_version": 2
 }
